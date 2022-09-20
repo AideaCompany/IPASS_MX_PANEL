@@ -1,0 +1,122 @@
+//react
+//Components
+import columns from '@/components/event/columns'
+import MainLayout from '@/components/layout/Layout'
+import TableData from '@/components/TableDatas'
+import CreateEventExpressModal from '@/components/event/CreateEvent'
+//types
+import { Localization } from '@/i18n/types'
+import useAuth from '@/providers/AuthContext'
+//Context
+import { getLocalizationProps } from '@/providers/LenguageContext'
+import { getAllEventsUserActive } from '@/services/events'
+import { getAllLocationActive } from '@/services/locations'
+import { IContact, IEvent, ILocation, PermissionsPrivilege } from '@/types/types'
+import { PlusOutlined } from '@ant-design/icons'
+import { Button, Tooltip } from 'antd'
+import { capitalize } from 'fogg-utils'
+import { getAllContactUser } from '@/services/contact'
+//next
+import { GetStaticPaths, GetStaticProps } from 'next'
+import Link from 'next/link'
+import React, { useEffect, useState } from 'react'
+interface actualItem extends IEvent {}
+
+const masterLocation = (props: { localization: Localization; lang: string; localizationContact: Localization }) => {
+  //props
+  const { localization, lang, localizationContact } = props
+  //states
+  const [actualPermission, setActualPermission] = useState<PermissionsPrivilege>()
+  const [data, setData] = useState<actualItem[]>([])
+  const [locations, setLocations] = useState<ILocation[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+  const [contacts, setContacts] = useState<IContact[]>([])
+  //providers
+  const { permission } = useAuth()
+  //Effect
+  useEffect(() => {
+    setActualPermission(permission.permissions?.find(e => e.sectionName === 'Event'))
+  }, [permission])
+
+  useEffect(() => {
+    ;(async () => {
+      if (actualPermission) {
+        getData()
+      }
+    })()
+  }, [actualPermission])
+
+  const getData = async () => {
+    setLoading(true)
+    setData(await getAllEventsUserActive())
+    setLocations(await getAllLocationActive())
+    setLoading(false)
+  }
+
+  const getContacts = async () => {
+    const contactsData = await getAllContactUser()
+    setContacts(contactsData.map(e => ({ ...e, name: `${capitalize(e.firstName)} ${capitalize(e.lastName)}` })))
+  }
+
+  const create = (
+    <>
+      {actualPermission?.create ? (
+        <Tooltip title={localization.translations.titleModalCreate}>
+          <Link href={{ pathname: '/[lang]/event/create', query: { lang } }}>
+            <Button style={{ margin: '5px' }} onClick={() => {}} shape="circle" icon={<PlusOutlined />} />
+          </Link>
+        </Tooltip>
+      ) : (
+        <> </>
+      )}
+      {actualPermission?.create && (
+        <CreateEventExpressModal
+          actualPermission={actualPermission as PermissionsPrivilege}
+          getContacts={getContacts}
+          translationsContact={localizationContact.translations}
+          contacts={contacts}
+          translations={localization.translations}
+          locations={locations}
+        />
+      )}
+    </>
+  )
+
+  return (
+    <>
+      <MainLayout create={create} getData={getData} lang={lang} title={localization?.translations.titleSection}>
+        <TableData
+          columns={columns({
+            translations: localization.translations,
+            actualPermission: actualPermission as PermissionsPrivilege,
+            permision: permission,
+            lang: lang,
+            locations: locations,
+            after: getData
+          })}
+          data={data}
+          loading={loading}
+        />
+      </MainLayout>
+    </>
+  )
+}
+
+export default React.memo(masterLocation)
+
+export const getStaticProps: GetStaticProps = async ctx => {
+  const localization = getLocalizationProps(ctx, 'event')
+  const localizationContact = getLocalizationProps(ctx, 'contact')
+  return {
+    props: {
+      localization,
+      localizationContact
+    }
+  }
+}
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: ['es', 'en'].map(lang => ({ params: { lang } })),
+    fallback: false
+  }
+}

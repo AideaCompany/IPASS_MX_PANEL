@@ -1,0 +1,49 @@
+.modalConfigContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .stepsConfig {
+    width: 80%;
+    margin: 30px auto;
+  }
+
+  .deviceContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    .devices {
+      margin-left: 30px;
+      margin-right: 30px;
+      margin-bottom: 10px;
+      transition: 0.1s ease-in-out;
+      .devices--video {
+        height: 375px;
+        width: 500px;
+        background-color: #000;
+      }
+    }
+
+    .devices--selected {
+      margin: 0 auto;
+      height: 5px;
+      width: 80%;
+      border-bottom: 5px solid $mainOrange;
+    }
+
+    .devices--notSelected {
+      height: 5px;
+      width: 100%;
+    }
+  }
+
+  .buttons {
+    margin-top: 30px;
+    display: flex;
+    button {
+      margin: 10px;
+    }
+  }
+}
