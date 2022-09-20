@@ -3,7 +3,6 @@
 import columns from '@/components/event/columns'
 import MainLayout from '@/components/layout/Layout'
 import TableData from '@/components/TableDatas'
-import CreateEventExpressModal from '@/components/event/CreateEvent'
 //types
 import { Localization } from '@/i18n/types'
 import useAuth from '@/providers/AuthContext'
@@ -11,26 +10,24 @@ import useAuth from '@/providers/AuthContext'
 import { getLocalizationProps } from '@/providers/LenguageContext'
 import { getAllEventsUserActive } from '@/services/events'
 import { getAllLocationActive } from '@/services/locations'
-import { IContact, IEvent, ILocation, PermissionsPrivilege } from '@/types/types'
+import { IEvent, ILocation, PermissionsPrivilege } from '@/types/types'
 import { PlusOutlined } from '@ant-design/icons'
 import { Button, Tooltip } from 'antd'
-import { capitalize } from 'fogg-utils'
-import { getAllContactUser } from '@/services/contact'
 //next
 import { GetStaticPaths, GetStaticProps } from 'next'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 interface actualItem extends IEvent {}
 
-const masterLocation = (props: { localization: Localization; lang: string; localizationContact: Localization }) => {
+const masterLocation = (props: { localization: Localization; lang: string }) => {
   //props
-  const { localization, lang, localizationContact } = props
+  const { localization, lang } = props
   //states
   const [actualPermission, setActualPermission] = useState<PermissionsPrivilege>()
   const [data, setData] = useState<actualItem[]>([])
   const [locations, setLocations] = useState<ILocation[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-  const [contacts, setContacts] = useState<IContact[]>([])
+  // const [contacts, setContacts] = useState<IContact[]>([])
   //providers
   const { permission } = useAuth()
   //Effect
@@ -53,10 +50,10 @@ const masterLocation = (props: { localization: Localization; lang: string; local
     setLoading(false)
   }
 
-  const getContacts = async () => {
-    const contactsData = await getAllContactUser()
-    setContacts(contactsData.map(e => ({ ...e, name: `${capitalize(e.firstName)} ${capitalize(e.lastName)}` })))
-  }
+  // const getContacts = async () => {
+  //   const contactsData = await getAllContactUser()
+  //   setContacts(contactsData.map(e => ({ ...e, name: `${capitalize(e.firstName)} ${capitalize(e.lastName)}` })))
+  // }
 
   const create = (
     <>
@@ -69,7 +66,7 @@ const masterLocation = (props: { localization: Localization; lang: string; local
       ) : (
         <> </>
       )}
-      {actualPermission?.create && (
+      {/* {actualPermission?.create && (
         <CreateEventExpressModal
           actualPermission={actualPermission as PermissionsPrivilege}
           getContacts={getContacts}
@@ -78,7 +75,7 @@ const masterLocation = (props: { localization: Localization; lang: string; local
           translations={localization.translations}
           locations={locations}
         />
-      )}
+      )} */}
     </>
   )
 
@@ -106,11 +103,11 @@ export default React.memo(masterLocation)
 
 export const getStaticProps: GetStaticProps = async ctx => {
   const localization = getLocalizationProps(ctx, 'event')
-  const localizationContact = getLocalizationProps(ctx, 'contact')
+  // const localizationContact = getLocalizationProps(ctx, 'contact')
   return {
     props: {
-      localization,
-      localizationContact
+      localization
+      // localizationContact
     }
   }
 }

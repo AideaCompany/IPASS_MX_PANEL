@@ -41,7 +41,7 @@
     "jspdf": "^2.5.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
-    "moment-timezone": "^0.5.34",
+    "moment-timezone": "^0.5.37",
     "next": "11.1.2",
     "qrcode.react": "^1.0.1",
     "react": "17.0.2",
